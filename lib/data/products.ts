@@ -1,0 +1,258 @@
+import type { CategorySlug, Product } from "@/lib/types";
+
+export const products: Product[] = [
+  {
+    id: "prod-001",
+    name: "大白菜",
+    nameJa: "白菜",
+    description: "新鲜多汁的大白菜，适合火锅、炒菜和腌制。产地直送，当日采摘。",
+    price: 298,
+    categorySlug: "vegetables",
+    unit: "1株",
+    popular: true,
+  },
+  {
+    id: "prod-002",
+    name: "小白菜",
+    nameJa: "小松菜",
+    description: "嫩绿小白菜，口感清脆，适合清炒或做汤。",
+    price: 198,
+    categorySlug: "vegetables",
+    unit: "300g",
+    popular: true,
+  },
+  {
+    id: "prod-003",
+    name: "韭菜",
+    nameJa: "ニラ",
+    description: "香气浓郁的韭菜，包饺子、炒蛋必备食材。",
+    price: 248,
+    categorySlug: "vegetables",
+    unit: "200g",
+  },
+  {
+    id: "prod-004",
+    name: "空心菜",
+    nameJa: "空芯菜",
+    description: "当季空心菜，茎叶脆嫩，蒜炒最佳。",
+    price: 228,
+    categorySlug: "vegetables",
+    unit: "250g",
+  },
+  {
+    id: "prod-005",
+    name: "三全猪肉水饺",
+    nameJa: "豚肉餃子",
+    description: "经典猪肉大葱馅，皮薄馅大。冷冻保存，水煮即食。",
+    price: 598,
+    categorySlug: "frozen-food",
+    unit: "455g",
+    popular: true,
+    promotion: "2袋 ¥998",
+  },
+  {
+    id: "prod-006",
+    name: "思念手抓饼",
+    nameJa: "手抓餅",
+    description: "层层酥脆的手抓饼，平底锅煎制三分钟即食。",
+    price: 498,
+    categorySlug: "frozen-food",
+    unit: "10片",
+    popular: true,
+  },
+  {
+    id: "prod-007",
+    name: "湾仔码头虾仁馄饨",
+    nameJa: "エビワンタン",
+    description: "整颗虾仁包裹在薄皮中，汤煮鲜美无比。",
+    price: 698,
+    categorySlug: "frozen-food",
+    unit: "300g",
+  },
+  {
+    id: "prod-008",
+    name: "安井红糖糍粑",
+    nameJa: "餅",
+    description: "外酥内糯的红糖糍粑，空气炸锅或油炸均可。",
+    price: 448,
+    categorySlug: "frozen-food",
+    unit: "400g",
+  },
+  {
+    id: "prod-009",
+    name: "旺旺仙贝",
+    nameJa: "せんべい",
+    description: "经典米饼零食，咸香酥脆，老少皆宜。",
+    price: 328,
+    categorySlug: "snacks",
+    unit: "150g",
+    popular: true,
+  },
+  {
+    id: "prod-010",
+    name: "卫龙辣条",
+    nameJa: "スパイシースナック",
+    description: "麻辣鲜香的经典辣条，童年回忆。",
+    price: 198,
+    categorySlug: "snacks",
+    unit: "5袋",
+    popular: true,
+  },
+  {
+    id: "prod-011",
+    name: "洽洽瓜子",
+    nameJa: "ひまわりの種",
+    description: "焦糖味葵花籽，追剧必备零食。",
+    price: 278,
+    categorySlug: "snacks",
+    unit: "200g",
+  },
+  {
+    id: "prod-012",
+    name: "徐福记凤梨酥",
+    nameJa: "パイナップルケーキ",
+    description: "酥皮包裹凤梨馅，甜而不腻的台式经典。",
+    price: 398,
+    categorySlug: "snacks",
+    unit: "6个",
+  },
+  {
+    id: "prod-013",
+    name: "康师傅冰红茶",
+    nameJa: "アイスティー",
+    description: "经典柠檬红茶，冰镇后清凉解渴。",
+    price: 128,
+    categorySlug: "drinks",
+    unit: "500ml",
+    popular: true,
+  },
+  {
+    id: "prod-014",
+    name: "维他奶",
+    nameJa: "豆乳",
+    description: "经典原味豆奶，植物蛋白饮品。",
+    price: 148,
+    categorySlug: "drinks",
+    unit: "250ml",
+    popular: true,
+  },
+  {
+    id: "prod-015",
+    name: "王老吉凉茶",
+    nameJa: "ハーブティー",
+    description: "清热解腻的植物凉茶，火锅好搭档。",
+    price: 138,
+    categorySlug: "drinks",
+    unit: "310ml",
+  },
+  {
+    id: "prod-016",
+    name: "椰树椰汁",
+    nameJa: "ココナッツミルク",
+    description: "浓香椰汁，零添加的天然风味。",
+    price: 168,
+    categorySlug: "drinks",
+    unit: "245ml",
+  },
+  {
+    id: "prod-017",
+    name: "康师傅红烧牛肉面",
+    nameJa: "牛肉麺",
+    description: "经典红烧牛肉味，汤浓面劲，五分钟即食。",
+    price: 198,
+    categorySlug: "instant-noodles",
+    unit: "1袋",
+    popular: true,
+    promotion: "5袋 ¥880",
+  },
+  {
+    id: "prod-018",
+    name: "统一老坛酸菜面",
+    nameJa: "酸菜麺",
+    description: "酸爽开胃的老坛酸菜，面条爽滑。",
+    price: 198,
+    categorySlug: "instant-noodles",
+    unit: "1袋",
+    popular: true,
+  },
+  {
+    id: "prod-019",
+    name: "今麦郎拉面范",
+    nameJa: "ラーメン",
+    description: "日式豚骨风味拉面，汤底浓郁。",
+    price: 298,
+    categorySlug: "instant-noodles",
+    unit: "1杯",
+  },
+  {
+    id: "prod-020",
+    name: "白象大骨面",
+    nameJa: "骨付き麺",
+    description: "大骨熬汤，汤鲜面香，分量十足。",
+    price: 228,
+    categorySlug: "instant-noodles",
+    unit: "1袋",
+  },
+  {
+    id: "prod-021",
+    name: "老干妈香辣脆油辣椒",
+    nameJa: "唐辛子ソース",
+    description: "国民辣酱，拌面、拌饭、炒菜万能调味。",
+    price: 498,
+    categorySlug: "seasonings",
+    unit: "210g",
+    popular: true,
+  },
+  {
+    id: "prod-022",
+    name: "李锦记生抽",
+    nameJa: "醤油",
+    description: "酿造生抽，鲜香醇厚，中式烹饪基础调味。",
+    price: 398,
+    categorySlug: "seasonings",
+    unit: "500ml",
+    popular: true,
+  },
+  {
+    id: "prod-023",
+    name: "海天蚝油",
+    nameJa: "オイスターソース",
+    description: "浓稠鲜香蚝油，炒菜、蘸料两相宜。",
+    price: 348,
+    categorySlug: "seasonings",
+    unit: "250g",
+  },
+  {
+    id: "prod-024",
+    name: "王守义十三香",
+    nameJa: "ミックススパイス",
+    description: "经典中式复合香料，炖肉、卤味必备。",
+    price: 278,
+    categorySlug: "seasonings",
+    unit: "45g",
+  },
+];
+
+export function getProductById(id: string): Product | undefined {
+  return products.find((product) => product.id === id);
+}
+
+export function getProductsByCategory(slug: CategorySlug): Product[] {
+  return products.filter((product) => product.categorySlug === slug);
+}
+
+export function getPopularProducts(): Product[] {
+  return products.filter((product) => product.popular);
+}
+
+export function searchProducts(query: string): Product[] {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return [];
+
+  return products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(normalized) ||
+      product.nameJa.toLowerCase().includes(normalized) ||
+      product.description.toLowerCase().includes(normalized),
+  );
+}
