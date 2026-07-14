@@ -10,18 +10,16 @@ import { formatPrice } from "@/lib/utils/format";
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId") ?? "";
-  const [order, setOrder] = useState<Order | null>(null);
+  const [order] = useState<Order | null>(() => {
+    if (typeof window === "undefined") return null;
 
-  useEffect(() => {
     try {
       const stored = sessionStorage.getItem("last-order");
-      if (stored) {
-        setOrder(JSON.parse(stored) as Order);
-      }
+      return stored ? (JSON.parse(stored) as Order) : null;
     } catch {
-      setOrder(null);
+      return null;
     }
-  }, []);
+  });
 
   const displayOrderId = order?.id ?? orderId;
 
