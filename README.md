@@ -10,6 +10,8 @@
 - Supabase Auth 管理员登录
 - 后台查看订单并修改状态
 - 后台新增、编辑、上下架商品以及修改价格和库存
+- 后台上传商品图片，自动转换为最长边 1400px、最大 300KB 的 WebP
+- 更换或移除商品图片时自动清理 Supabase Storage 中的旧文件
 - 数据库 Row Level Security 策略
 
 优惠、优惠券和配送费计算暂未启用；订单总额目前只包含商品金额。
@@ -60,6 +62,7 @@ npm run build
 ## 数据说明
 
 - 商品和订单保存在 Supabase PostgreSQL。
+- 商品图片保存在公开的 Supabase Storage `product-images` Bucket，上传和删除仅限管理员。
 - 购物车保存在顾客浏览器的 `localStorage`。
 - 下单接口只接受商品 ID 和数量；价格、上下架状态与库存都在服务端校验。
 - 当前未接入在线支付。

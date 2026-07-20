@@ -1,5 +1,6 @@
 import { getAdminUserId } from "@/lib/auth/admin";
-import { updateProduct } from "@/lib/db/products";
+import { getProductById, updateProduct } from "@/lib/db/products";
+import { removeProductImage } from "@/lib/storage/product-images";
 import { parseProductInput } from "@/lib/validation";
 
 interface ProductRouteProps {
@@ -15,8 +16,22 @@ export async function PATCH(request: Request, { params }: ProductRouteProps) {
     return Response.json({ error: "商品信息无效" }, { status: 400 });
   }
   const { id } = await params;
+  const existing = await getProductById(id);
+  if (!existing) {
+    return Response.json({ error: "商品不存在" }, { status: 404 });
+  }
   const updated = await updateProduct(id, product);
-  return updated
-    ? Response.json(updated)
-    : Response.json({ error: "商品不存在" }, { status: 404 });
+  if (!updated) {
+    return Response.json({ error: "商品不存在" }, { status: 404 });
+  }
+
+  if (existing.imagePath && existing.imagePath !== updated.imagePath) {
+    try {
+      await removeProductImage(existing.imagePath);
+    } catch (error) {
+      console.error("Failed to remove replaced product image", error);
+    }
+  }
+
+  return Response.json(updated);
 }

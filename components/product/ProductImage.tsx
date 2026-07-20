@@ -1,9 +1,11 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/lib/types";
 import {
   getProductEmoji,
   getProductGradient,
 } from "@/lib/utils/product-image";
+import { getProductImageUrl } from "@/lib/utils/product-image-url";
 
 interface ProductImageProps {
   product: Product;
@@ -28,14 +30,24 @@ export function ProductImage({
   size = "md",
   linkToDetail = false,
 }: ProductImageProps) {
+  const imageUrl = getProductImageUrl(product.imagePath);
   const content = (
     <div
       className={`relative flex w-full items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br ${getProductGradient(product.categorySlug)} ${sizeStyles[size]}`}
-      aria-hidden
     >
-      <span className={`${emojiSizes[size]} select-none`}>
-        {getProductEmoji(product.categorySlug)}
-      </span>
+      {imageUrl ? (
+        <Image
+          src={imageUrl}
+          alt={product.name}
+          fill
+          sizes={size === "lg" ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 640px) 100vw, 25vw"}
+          className="object-cover"
+        />
+      ) : (
+        <span className={`${emojiSizes[size]} select-none`} aria-hidden>
+          {getProductEmoji(product.categorySlug)}
+        </span>
+      )}
     </div>
   );
 
