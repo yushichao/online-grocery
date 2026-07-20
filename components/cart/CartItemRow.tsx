@@ -46,6 +46,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
         <div className="flex items-center justify-between">
           <QuantityControl
             quantity={quantity}
+            canIncrease={quantity < product.stock}
             onDecrease={() => updateQuantity(product.id, quantity - 1)}
             onIncrease={() => updateQuantity(product.id, quantity + 1)}
           />
@@ -60,12 +61,14 @@ export function CartItemRow({ item }: CartItemRowProps) {
 
 interface QuantityControlProps {
   quantity: number;
+  canIncrease: boolean;
   onDecrease: () => void;
   onIncrease: () => void;
 }
 
 function QuantityControl({
   quantity,
+  canIncrease,
   onDecrease,
   onIncrease,
 }: QuantityControlProps) {
@@ -85,7 +88,8 @@ function QuantityControl({
       <button
         type="button"
         onClick={onIncrease}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-stone-600 transition-colors hover:bg-white hover:text-stone-900"
+        disabled={!canIncrease}
+        className="flex h-8 w-8 items-center justify-center rounded-full text-stone-600 transition-colors hover:bg-white hover:text-stone-900 disabled:cursor-not-allowed disabled:opacity-30"
         aria-label="增加数量"
       >
         +

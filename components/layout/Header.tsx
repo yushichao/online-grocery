@@ -11,18 +11,15 @@ export function Header() {
           </span>
           <span className="text-xs text-stone-500">中华食材宅配</span>
         </Link>
-        {/* <nav className="hidden items-center gap-8 text-sm text-stone-600 sm:flex">
-          <Link href="/" className="transition-colors hover:text-stone-900">
-            首页
-          </Link>
+        <div className="flex items-center gap-3">
           <Link
-            href="/category/vegetables"
-            className="transition-colors hover:text-stone-900"
+            href="/admin"
+            className="rounded-full px-3 py-2 text-sm text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900"
           >
-            商品分类
+            管理后台
           </Link>
-        </nav> */}
-        <CartLink />
+          <CartLink />
+        </div>
       </div>
     </header>
   );

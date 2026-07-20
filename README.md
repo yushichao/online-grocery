@@ -1,86 +1,65 @@
 # online-grocery
 
-一个基于 Next.js 16 和 Tailwind CSS 的华人食材宅配商城模板。包含商品分类、商品详情、购物车、结账流程、订单成功页等电商基础功能，适合用于演示或继续扩展为实际的在线零售网站。
+基于 Next.js 16、Supabase 与 PostgreSQL 的在线食品商店。顾客可以浏览商品、加入购物车并下单；管理员登录后台后可以查看订单、修改订单状态，以及新增和编辑商品、价格与库存。
 
-## 主要特性
+## 当前功能
 
-- `app` 路由与服务端渲染 / 静态渲染混合
-- 动态分类页与商品详情页
-- 购物车状态管理与本地存储持久化
-- 简单结账表单 + 订单成功页展示
-- 响应式 UI 组件与 Tailwind CSS 样式
-- 多语言字体支持（Noto Sans JP / SC）
+- 商品目录、分类、详情与本地购物车
+- 服务端创建订单、重新核价并原子扣减库存
+- Supabase PostgreSQL 持久化商品、订单和订单明细
+- Supabase Auth 管理员登录
+- 后台查看订单并修改状态
+- 后台新增、编辑、上下架商品以及修改价格和库存
+- 数据库 Row Level Security 策略
 
-## 技术栈
+优惠、优惠券和配送费计算暂未启用；订单总额目前只包含商品金额。
 
-- Next.js 16
-- React 19
-- TypeScript
-- Tailwind CSS 4
-- ESLint
+## 环境变量
 
-## 运行与开发
+在 `.env.local` 中配置：
+
+```dotenv
+DATABASE_URL=postgresql://...
+MIGRATION_DATABASE_URL=postgresql://...
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+```
+
+- `DATABASE_URL`：应用运行时连接，推荐使用 Transaction pooler，并关闭 prepared statements。
+- `MIGRATION_DATABASE_URL`：迁移脚本连接，推荐 Session pooler 或 Direct connection。
+- `.env.local` 已被 Git 忽略，不要提交数据库密码。
+
+## 初始化
 
 ```bash
 npm install
+npm run db:migrate
 npm run dev
 ```
 
-打开 `http://localhost:3000` 查看本地开发站点。
+打开 `http://localhost:3000`。
 
-### 其他常用命令
+## 创建后台管理员
+
+先在 Supabase Dashboard 的 `Authentication > Users` 创建邮箱密码用户，然后执行：
 
 ```bash
-npm run build
-npm start
+npm run db:make-admin -- admin@example.com
+```
+
+随后访问 `http://localhost:3000/admin/login` 登录。
+
+## 常用命令
+
+```bash
 npm run lint
-```
-
-## 目录说明
-
-```text
-app/
-  layout.tsx          # 全局布局与页面元数据
-  page.tsx            # 首页
-  cart/page.tsx       # 购物车页面
-  checkout/page.tsx   # 结账页面
-  order-success/page.tsx # 订单成功页
-  product/[id]/page.tsx  # 商品详情页
-  category/[slug]/page.tsx # 分类页
-components/
-  layout/             # 站点头部、页脚、布局组件
-  home/               # 首页展示组件
-  product/            # 商品卡片与详情相关组件
-  ui/                 # 通用 UI 组件
-context/
-  CartContext.tsx     # 购物车状态与本地存储逻辑
-lib/
-  data/               # 商品与分类数据源
-  types/              # 类型定义
-  utils/              # 工具函数
-public/               # 静态资源
-```
-
-## 自定义与扩展建议
-
-- 将 `public/hero-banner.png` 替换为自定义横幅图片
-- 在 `lib/data/products.ts` 和 `lib/data/categories.ts` 中添加更多商品与分类
-- 扩展 `components/ui` 以支持更多通用组件
-- 引入后端 API 或 Shopify、Stripe 等支付服务
-
-## 注意事项
-
-- 购物车数据保存在浏览器 `localStorage` 中
-- 订单详情在 `sessionStorage` 中临时保存并在成功页读取
-- 项目当前未集成真实支付，仅用于演示与前端流程
-
-## 部署
-
-由于是标准 Next.js 应用，可直接部署到 Vercel、Netlify、Cloudflare Pages 等平台。
-
-```bash
+npx tsc --noEmit
 npm run build
-npm start
 ```
 
-如果部署到 Vercel，确保使用 `npm run build` 进行构建。
+## 数据说明
+
+- 商品和订单保存在 Supabase PostgreSQL。
+- 购物车保存在顾客浏览器的 `localStorage`。
+- 下单接口只接受商品 ID 和数量；价格、上下架状态与库存都在服务端校验。
+- 当前未接入在线支付。

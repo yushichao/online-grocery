@@ -27,6 +27,9 @@ export function ProductCard({ product }: ProductCardProps) {
               {formatPrice(product.price)}
             </p>
             <p className="text-xs text-stone-400">{product.unit}</p>
+            <p className="mt-1 text-xs text-stone-400">
+              {product.stock > 0 ? `库存 ${product.stock}` : "已售罄"}
+            </p>
           </div>
           <AddToCartButton product={product} size="sm" />
         </div>

@@ -1,0 +1,36 @@
+insert into public.products
+  (id, name, name_ja, description, price, stock, category_slug, unit, popular)
+values
+  ('prod-001', '大白菜', '白菜', '新鲜多汁的大白菜，适合火锅、炒菜和腌制。产地直送，当日采摘。', 298, 20, 'vegetables', '1株', true),
+  ('prod-002', '小白菜', '小松菜', '嫩绿小白菜，口感清脆，适合清炒或做汤。', 198, 20, 'vegetables', '300g', true),
+  ('prod-003', '韭菜', 'ニラ', '香气浓郁的韭菜，包饺子、炒蛋必备食材。', 248, 20, 'vegetables', '200g', false),
+  ('prod-004', '空心菜', '空芯菜', '当季空心菜，茎叶脆嫩，蒜炒最佳。', 228, 20, 'vegetables', '250g', false),
+  ('prod-005', '三全猪肉水饺', '豚肉餃子', '经典猪肉大葱馅，皮薄馅大。冷冻保存，水煮即食。', 598, 20, 'frozen-food', '455g', true),
+  ('prod-006', '思念手抓饼', '手抓餅', '层层酥脆的手抓饼，平底锅煎制三分钟即食。', 498, 20, 'frozen-food', '10片', true),
+  ('prod-007', '湾仔码头虾仁馄饨', 'エビワンタン', '整颗虾仁包裹在薄皮中，汤煮鲜美无比。', 698, 20, 'frozen-food', '300g', false),
+  ('prod-008', '安井红糖糍粑', '餅', '外酥内糯的红糖糍粑，空气炸锅或油炸均可。', 448, 20, 'frozen-food', '400g', false),
+  ('prod-009', '旺旺仙贝', 'せんべい', '经典米饼零食，咸香酥脆，老少皆宜。', 328, 20, 'snacks', '150g', true),
+  ('prod-010', '卫龙辣条', 'スパイシースナック', '麻辣鲜香的经典辣条，童年回忆。', 198, 20, 'snacks', '5袋', true),
+  ('prod-011', '洽洽瓜子', 'ひまわりの種', '焦糖味葵花籽，追剧必备零食。', 278, 20, 'snacks', '200g', false),
+  ('prod-012', '徐福记凤梨酥', 'パイナップルケーキ', '酥皮包裹凤梨馅，甜而不腻的台式经典。', 398, 20, 'snacks', '6个', false),
+  ('prod-013', '康师傅冰红茶', 'アイスティー', '经典柠檬红茶，冰镇后清凉解渴。', 128, 20, 'drinks', '500ml', true),
+  ('prod-014', '维他奶', '豆乳', '经典原味豆奶，植物蛋白饮品。', 148, 20, 'drinks', '250ml', true),
+  ('prod-015', '王老吉凉茶', 'ハーブティー', '清热解腻的植物凉茶，火锅好搭档。', 138, 20, 'drinks', '310ml', false),
+  ('prod-016', '椰树椰汁', 'ココナッツミルク', '浓香椰汁，零添加的天然风味。', 168, 20, 'drinks', '245ml', false),
+  ('prod-017', '康师傅红烧牛肉面', '牛肉麺', '经典红烧牛肉味，汤浓面劲，五分钟即食。', 198, 20, 'instant-noodles', '1袋', true),
+  ('prod-018', '统一老坛酸菜面', '酸菜麺', '酸爽开胃的老坛酸菜，面条爽滑。', 198, 20, 'instant-noodles', '1袋', true),
+  ('prod-019', '今麦郎拉面范', 'ラーメン', '日式豚骨风味拉面，汤底浓郁。', 298, 20, 'instant-noodles', '1杯', false),
+  ('prod-020', '白象大骨面', '骨付き麺', '大骨熬汤，汤鲜面香，分量十足。', 228, 20, 'instant-noodles', '1袋', false),
+  ('prod-021', '老干妈香辣脆油辣椒', '唐辛子ソース', '国民辣酱，拌面、拌饭、炒菜万能调味。', 498, 20, 'seasonings', '210g', true),
+  ('prod-022', '李锦记生抽', '醤油', '酿造生抽，鲜香醇厚，中式烹饪基础调味。', 398, 20, 'seasonings', '500ml', true),
+  ('prod-023', '海天蚝油', 'オイスターソース', '浓稠鲜香蚝油，炒菜、蘸料两相宜。', 348, 20, 'seasonings', '250g', false),
+  ('prod-024', '王守义十三香', 'ミックススパイス', '经典中式复合香料，炖肉、卤味必备。', 278, 20, 'seasonings', '45g', false)
+on conflict (id) do update set
+  name = excluded.name,
+  name_ja = excluded.name_ja,
+  description = excluded.description,
+  price = excluded.price,
+  stock = excluded.stock,
+  category_slug = excluded.category_slug,
+  unit = excluded.unit,
+  popular = excluded.popular;

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useCart } from "@/context/CartContext";
-import type { CheckoutFormData } from "@/lib/types";
+import type { CheckoutFormData, Order } from "@/lib/types";
 import { formatPrice } from "@/lib/utils/format";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -29,13 +29,11 @@ const initialFormData: CheckoutFormData = {
 
 export function CheckoutForm() {
   const router = useRouter();
-  const { items, total, clearCart } = useCart();
+  const { items, total } = useCart();
   const [formData, setFormData] = useState<CheckoutFormData>(initialFormData);
   const [errors, setErrors] = useState<Partial<CheckoutFormData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const deliveryFee = total >= 3000 ? 0 : 300;
-  const grandTotal = total + deliveryFee;
+  const [submitError, setSubmitError] = useState("");
 
   function validate(): boolean {
     const nextErrors: Partial<CheckoutFormData> = {};
@@ -45,9 +43,13 @@ export function CheckoutForm() {
     }
     if (!formData.phone.trim()) {
       nextErrors.phone = "请输入电话号码";
+    } else if (!/^[0-9+()\-\s]{8,20}$/.test(formData.phone.trim())) {
+      nextErrors.phone = "请输入有效的电话号码";
     }
     if (!formData.address.trim()) {
       nextErrors.address = "请输入配送地址";
+    } else if (formData.address.trim().length < 6) {
+      nextErrors.address = "请填写完整地址";
     }
     if (!formData.deliveryTime) {
       nextErrors.deliveryTime = "请选择配送时间";
@@ -57,24 +59,35 @@ export function CheckoutForm() {
     return Object.keys(nextErrors).length === 0;
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
-
-    const orderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
-    const order = {
-      id: orderId,
-      items,
-      total: grandTotal,
-      formData,
-      createdAt: new Date().toISOString(),
-    };
-
-    sessionStorage.setItem("last-order", JSON.stringify(order));
-    clearCart();
-    router.push(`/order-success?orderId=${orderId}`);
+    setSubmitError("");
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((item) => ({
+            productId: item.product.id,
+            quantity: item.quantity,
+          })),
+          formData,
+        }),
+      });
+      const result = (await response.json()) as Order | { error?: string };
+      if (!response.ok) {
+        throw new Error("error" in result ? result.error : "订单提交失败");
+      }
+      const order = result as Order;
+      sessionStorage.setItem("last-order", JSON.stringify(order));
+      router.push(`/order-success?orderId=${encodeURIComponent(order.id)}`);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "订单提交失败，请重试");
+      setIsSubmitting(false);
+    }
   }
 
   function updateField<K extends keyof CheckoutFormData>(
@@ -144,13 +157,9 @@ export function CheckoutForm() {
             <dt>商品小计</dt>
             <dd>{formatPrice(total)}</dd>
           </div>
-          <div className="flex justify-between">
-            <dt>配送费</dt>
-            <dd>{deliveryFee === 0 ? "免费" : formatPrice(deliveryFee)}</dd>
-          </div>
           <div className="flex justify-between border-t border-stone-100 pt-2 text-base font-semibold text-stone-900">
             <dt>合计</dt>
-            <dd>{formatPrice(grandTotal)}</dd>
+            <dd>{formatPrice(total)}</dd>
           </div>
         </dl>
         <Button
@@ -161,8 +170,11 @@ export function CheckoutForm() {
         >
           {isSubmitting ? "提交中..." : "提交订单"}
         </Button>
+        {submitError ? (
+          <p className="text-center text-sm text-red-600">{submitError}</p>
+        ) : null}
         <p className="text-center text-xs text-stone-400">
-          提交后我们将通过电话确认订单，暂不支持在线支付。
+          提交后可在管理后台查看和处理订单。
         </p>
       </div>
     </form>

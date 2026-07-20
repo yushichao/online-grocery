@@ -32,9 +32,10 @@ export function AddToCartButton({
       size={size}
       onClick={handleClick}
       className={fullWidth ? "w-full" : ""}
+      disabled={product.stock <= 0}
       aria-label={`将 ${product.name} 加入购物车`}
     >
-      {added ? "已添加" : "加入购物车"}
+      {product.stock <= 0 ? "已售罄" : added ? "已添加" : "加入购物车"}
     </Button>
   );
 }
