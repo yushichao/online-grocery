@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ProductGrid } from "@/components/product/ProductGrid";
+import { CategoryProducts } from "@/components/product/CategoryProducts";
 import { getCategoryBySlug } from "@/lib/data/categories";
-import { getProductsByCategory } from "@/lib/data/products";
 import type { CategorySlug } from "@/lib/types";
 
 interface CategoryPageProps {
@@ -42,8 +41,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  const products = getProductsByCategory(category.slug as CategorySlug);
-
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
       <nav className="mb-6 text-sm text-stone-500">
@@ -71,7 +68,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </p>
       </header>
 
-      <ProductGrid products={products} />
+      <CategoryProducts slug={category.slug as CategorySlug} />
     </div>
   );
 }

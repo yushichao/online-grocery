@@ -1,6 +1,6 @@
-import type { CategorySlug, Product } from "@/lib/types";
+import type { Product } from "@/lib/types";
 
-export const products: Product[] = [
+const productSeed: Omit<Product, "stock" | "active">[] = [
   {
     id: "prod-001",
     name: "大白菜",
@@ -48,7 +48,6 @@ export const products: Product[] = [
     categorySlug: "frozen-food",
     unit: "455g",
     popular: true,
-    promotion: "2袋 ¥998",
   },
   {
     id: "prod-006",
@@ -163,7 +162,6 @@ export const products: Product[] = [
     categorySlug: "instant-noodles",
     unit: "1袋",
     popular: true,
-    promotion: "5袋 ¥880",
   },
   {
     id: "prod-018",
@@ -233,26 +231,12 @@ export const products: Product[] = [
   },
 ];
 
+export const products: Product[] = productSeed.map((product) => ({
+  ...product,
+  stock: 20,
+  active: true,
+}));
+
 export function getProductById(id: string): Product | undefined {
   return products.find((product) => product.id === id);
-}
-
-export function getProductsByCategory(slug: CategorySlug): Product[] {
-  return products.filter((product) => product.categorySlug === slug);
-}
-
-export function getPopularProducts(): Product[] {
-  return products.filter((product) => product.popular);
-}
-
-export function searchProducts(query: string): Product[] {
-  const normalized = query.trim().toLowerCase();
-  if (!normalized) return [];
-
-  return products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(normalized) ||
-      product.nameJa.toLowerCase().includes(normalized) ||
-      product.description.toLowerCase().includes(normalized),
-  );
 }

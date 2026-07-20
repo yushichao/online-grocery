@@ -21,10 +21,11 @@ export interface Product {
   nameJa: string;
   description: string;
   price: number;
+  stock: number;
+  active: boolean;
   categorySlug: CategorySlug;
   unit: string;
   popular?: boolean;
-  promotion?: string;
 }
 
 export interface CartItem {
@@ -42,8 +43,26 @@ export interface CheckoutFormData {
 
 export interface Order {
   id: string;
-  items: CartItem[];
+  items: OrderItem[];
   total: number;
   formData: CheckoutFormData;
   createdAt: string;
+  status: OrderStatus;
 }
+
+export interface OrderItem {
+  productId: string | null;
+  productName: string;
+  productNameJa: string;
+  unit: string;
+  unitPrice: number;
+  quantity: number;
+  subtotal: number;
+}
+
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "preparing"
+  | "completed"
+  | "cancelled";

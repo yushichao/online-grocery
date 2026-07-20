@@ -11,6 +11,7 @@ import {
 } from "react";
 import type { CartItem, Product } from "@/lib/types";
 import { calculateCartTotal } from "@/lib/utils/format";
+import { useProducts } from "@/context/ProductContext";
 
 const CART_STORAGE_KEY = "online-grocery-cart";
 
@@ -18,6 +19,7 @@ interface CartContextValue {
   items: CartItem[];
   itemCount: number;
   total: number;
+  isHydrated: boolean;
   addItem: (product: Product, quantity?: number) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -43,53 +45,108 @@ function saveCartToStorage(items: CartItem[]): void {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    if (typeof window === "undefined") return [];
-    return loadCartFromStorage();
-  });
+  const { products, isHydrated: productsHydrated } = useProducts();
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setItems(loadCartFromStorage());
+      setIsHydrated(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) return;
     saveCartToStorage(items);
-  }, [items]);
+  }, [isHydrated, items]);
+
+  useEffect(() => {
+    if (!isHydrated || !productsHydrated) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      setItems((current) => {
+        let changed = false;
+        const next = current.flatMap((item) => {
+          const product = products.find(
+            (candidate) => candidate.id === item.product.id,
+          );
+          if (!product || product.stock <= 0) {
+            changed = true;
+            return [];
+          }
+          const quantity = Math.min(item.quantity, product.stock);
+          if (product !== item.product || quantity !== item.quantity) {
+            changed = true;
+            return [{ product, quantity }];
+          }
+          return [item];
+        });
+        return changed ? next : current;
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [isHydrated, productsHydrated, products]);
 
   const addItem = useCallback((product: Product, quantity = 1) => {
+    if (product.stock <= 0 || quantity <= 0) return;
     setItems((current) => {
       const existing = current.find((item) => item.product.id === product.id);
 
       if (existing) {
-        return current.map((item) =>
+        const next = current.map((item) =>
           item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? {
+                ...item,
+                quantity: Math.min(item.quantity + quantity, product.stock),
+              }
             : item,
         );
+        saveCartToStorage(next);
+        return next;
       }
 
-      return [...current, { product, quantity }];
+      const next = [
+        ...current,
+        { product, quantity: Math.min(quantity, product.stock) },
+      ];
+      saveCartToStorage(next);
+      return next;
     });
   }, []);
 
   const removeItem = useCallback((productId: string) => {
-    setItems((current) =>
-      current.filter((item) => item.product.id !== productId),
-    );
+    setItems((current) => {
+      const next = current.filter((item) => item.product.id !== productId);
+      saveCartToStorage(next);
+      return next;
+    });
   }, []);
 
   const updateQuantity = useCallback((productId: string, quantity: number) => {
     if (quantity <= 0) {
-      setItems((current) =>
-        current.filter((item) => item.product.id !== productId),
-      );
+      setItems((current) => {
+        const next = current.filter((item) => item.product.id !== productId);
+        saveCartToStorage(next);
+        return next;
+      });
       return;
     }
 
-    setItems((current) =>
-      current.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item,
-      ),
-    );
+    setItems((current) => {
+      const next = current.map((item) =>
+        item.product.id === productId
+          ? { ...item, quantity: Math.min(quantity, item.product.stock) }
+          : item,
+      );
+      saveCartToStorage(next);
+      return next;
+    });
   }, []);
 
   const clearCart = useCallback(() => {
+    saveCartToStorage([]);
     setItems([]);
   }, []);
 
@@ -98,12 +155,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       items,
       itemCount: items.reduce((count, item) => count + item.quantity, 0),
       total: calculateCartTotal(items),
+      isHydrated,
       addItem,
       removeItem,
       updateQuantity,
       clearCart,
     }),
-    [items, addItem, removeItem, updateQuantity, clearCart],
+    [items, isHydrated, addItem, removeItem, updateQuantity, clearCart],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

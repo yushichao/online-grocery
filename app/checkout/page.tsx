@@ -8,15 +8,15 @@ import { useCart } from "@/context/CartContext";
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items } = useCart();
+  const { items, isHydrated } = useCart();
 
   useEffect(() => {
-    if (items.length === 0) {
+    if (isHydrated && items.length === 0) {
       router.replace("/cart");
     }
-  }, [items.length, router]);
+  }, [isHydrated, items.length, router]);
 
-  if (items.length === 0) {
+  if (!isHydrated || items.length === 0) {
     return null;
   }
 

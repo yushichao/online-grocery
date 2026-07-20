@@ -34,7 +34,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-stone-500">
               <li>配送范围：东京23区</li>
               <li>配送时间：10:00 – 20:00</li>
-              <li>满 ¥3,000 免配送费</li>
+              <li>顾客下单后由后台统一处理</li>
               <li>客服电话：03-XXXX-XXXX</li>
             </ul>
           </div>

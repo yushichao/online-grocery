@@ -4,22 +4,29 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { useCart } from "@/context/CartContext";
 import type { Order } from "@/lib/types";
 import { formatPrice } from "@/lib/utils/format";
 
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId") ?? "";
-  const [order] = useState<Order | null>(() => {
-    if (typeof window === "undefined") return null;
+  const { clearCart } = useCart();
+  const [order, setOrder] = useState<Order | null>(null);
 
-    try {
-      const stored = sessionStorage.getItem("last-order");
-      return stored ? (JSON.parse(stored) as Order) : null;
-    } catch {
-      return null;
-    }
-  });
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      try {
+        const stored = sessionStorage.getItem("last-order");
+        const parsed = stored ? (JSON.parse(stored) as Order) : null;
+        setOrder(parsed);
+        if (parsed && parsed.id === orderId) clearCart();
+      } catch {
+        setOrder(null);
+      }
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [clearCart, orderId]);
 
   const displayOrderId = order?.id ?? orderId;
 
