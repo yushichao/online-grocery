@@ -13,6 +13,7 @@ interface ProductRow {
   unit: string;
   popular: boolean;
   active: boolean;
+  image_path: string | null;
 }
 
 function mapProduct(row: ProductRow): Product {
@@ -27,14 +28,26 @@ function mapProduct(row: ProductRow): Product {
     unit: row.unit,
     popular: row.popular,
     active: row.active,
+    imagePath: row.image_path,
   };
+}
+
+export async function getProductById(id: string): Promise<Product | null> {
+  const sql = getSql();
+  const [row] = await sql<ProductRow[]>`
+    select id, name, name_ja, description, price, stock, category_slug,
+      unit, popular, active, image_path
+    from public.products
+    where id = ${id}
+  `;
+  return row ? mapProduct(row) : null;
 }
 
 export async function listPublicProducts(): Promise<Product[]> {
   const sql = getSql();
   const rows = await sql<ProductRow[]>`
     select id, name, name_ja, description, price, stock, category_slug,
-      unit, popular, active
+      unit, popular, active, image_path
     from public.products
     where active = true
     order by created_at, id
@@ -46,7 +59,7 @@ export async function listAllProducts(): Promise<Product[]> {
   const sql = getSql();
   const rows = await sql<ProductRow[]>`
     select id, name, name_ja, description, price, stock, category_slug,
-      unit, popular, active
+      unit, popular, active, image_path
     from public.products
     order by created_at, id
   `;
@@ -61,14 +74,15 @@ export async function createProduct(
   const [row] = await sql<ProductRow[]>`
     insert into public.products (
       id, name, name_ja, description, price, stock, category_slug,
-      unit, popular, active
+      unit, popular, active, image_path
     ) values (
       ${id}, ${product.name}, ${product.nameJa}, ${product.description},
       ${product.price}, ${product.stock}, ${product.categorySlug},
-      ${product.unit}, ${Boolean(product.popular)}, ${product.active}
+      ${product.unit}, ${Boolean(product.popular)}, ${product.active},
+      ${product.imagePath}
     )
     returning id, name, name_ja, description, price, stock, category_slug,
-      unit, popular, active
+      unit, popular, active, image_path
   `;
   return mapProduct(row);
 }
@@ -88,10 +102,11 @@ export async function updateProduct(
       category_slug = ${product.categorySlug},
       unit = ${product.unit},
       popular = ${Boolean(product.popular)},
-      active = ${product.active}
+      active = ${product.active},
+      image_path = ${product.imagePath}
     where id = ${id}
     returning id, name, name_ja, description, price, stock, category_slug,
-      unit, popular, active
+      unit, popular, active, image_path
   `;
   return row ? mapProduct(row) : null;
 }

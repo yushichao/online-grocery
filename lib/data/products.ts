@@ -1,6 +1,6 @@
 import type { Product } from "@/lib/types";
 
-const productSeed: Omit<Product, "stock" | "active">[] = [
+const productSeed: Omit<Product, "stock" | "active" | "imagePath">[] = [
   {
     id: "prod-001",
     name: "大白菜",
@@ -235,6 +235,7 @@ export const products: Product[] = productSeed.map((product) => ({
   ...product,
   stock: 20,
   active: true,
+  imagePath: null,
 }));
 
 export function getProductById(id: string): Product | undefined {

@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import Image from "next/image";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { logout } from "@/app/admin/login/actions";
 import { useProducts } from "@/context/ProductContext";
 import { categories } from "@/lib/data/categories";
 import type { CategorySlug, Order, OrderStatus, Product } from "@/lib/types";
+import { compressProductImage } from "@/lib/utils/compress-product-image";
 import { formatPrice } from "@/lib/utils/format";
+import { getProductImageUrl } from "@/lib/utils/product-image-url";
 
 type AdminTab = "orders" | "products";
 
@@ -27,6 +30,7 @@ const emptyProduct: Omit<Product, "id"> = {
   unit: "",
   popular: false,
   active: true,
+  imagePath: null,
 };
 
 export function AdminDashboard({
@@ -261,33 +265,65 @@ function ProductManager({
           key={editingProduct?.id ?? "new-product"}
           product={editingProduct}
           onCancel={() => setShowForm(false)}
-          onSave={async (data) => {
-            const response = await fetch(
-              editingProduct
-                ? `/api/admin/products/${editingProduct.id}`
-                : "/api/admin/products",
-              {
-                method: editingProduct ? "PATCH" : "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
-              },
-            );
-            if (!response.ok) {
-              const result = (await response.json()) as { error?: string };
-              throw new Error(result.error ?? "商品保存失败");
-            }
-            const saved = (await response.json()) as Product;
-            if (editingProduct) {
-              setProducts((current) =>
-                current.map((product) =>
-                  product.id === saved.id ? saved : product,
-                ),
+          onSave={async (data, imageFile) => {
+            let uploadedPath: string | null = null;
+            try {
+              if (imageFile) {
+                const uploadBody = new FormData();
+                uploadBody.append("image", imageFile);
+                const uploadResponse = await fetch(
+                  "/api/admin/product-images",
+                  { method: "POST", body: uploadBody },
+                );
+                const uploadResult = (await uploadResponse.json()) as {
+                  path?: string;
+                  error?: string;
+                };
+                if (!uploadResponse.ok || !uploadResult.path) {
+                  throw new Error(uploadResult.error ?? "图片上传失败");
+                }
+                uploadedPath = uploadResult.path;
+              }
+
+              const response = await fetch(
+                editingProduct
+                  ? `/api/admin/products/${editingProduct.id}`
+                  : "/api/admin/products",
+                {
+                  method: editingProduct ? "PATCH" : "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    ...data,
+                    imagePath: uploadedPath ?? data.imagePath,
+                  }),
+                },
               );
-            } else {
-              setProducts((current) => [...current, saved]);
+              if (!response.ok) {
+                const result = (await response.json()) as { error?: string };
+                throw new Error(result.error ?? "商品保存失败");
+              }
+              const saved = (await response.json()) as Product;
+              if (editingProduct) {
+                setProducts((current) =>
+                  current.map((product) =>
+                    product.id === saved.id ? saved : product,
+                  ),
+                );
+              } else {
+                setProducts((current) => [...current, saved]);
+              }
+              await refreshProducts();
+              setShowForm(false);
+            } catch (saveError) {
+              if (uploadedPath) {
+                await fetch("/api/admin/product-images", {
+                  method: "DELETE",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ path: uploadedPath }),
+                }).catch(() => undefined);
+              }
+              throw saveError;
             }
-            await refreshProducts();
-            setShowForm(false);
           }}
         />
       ) : null}
@@ -355,29 +391,74 @@ function ProductForm({
   onCancel,
 }: {
   product: Product | null;
-  onSave: (data: Omit<Product, "id">) => Promise<void>;
+  onSave: (
+    data: Omit<Product, "id">,
+    imageFile: File | null,
+  ) => Promise<void>;
   onCancel: () => void;
 }) {
   const [formData, setFormData] = useState<Omit<Product, "id">>(
     product ? omitProductId(product) : emptyProduct,
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [error, setError] = useState("");
+  const [imageError, setImageError] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  async function selectImage(event: ChangeEvent<HTMLInputElement>) {
+    const source = event.target.files?.[0];
+    event.target.value = "";
+    if (!source) return;
+
+    setIsProcessingImage(true);
+    setImageError("");
+    try {
+      const compressed = await compressProductImage(source);
+      setImageFile(compressed);
+      setPreviewUrl(URL.createObjectURL(compressed));
+    } catch (imageProcessingError) {
+      setImageError(
+        imageProcessingError instanceof Error
+          ? imageProcessingError.message
+          : "图片处理失败",
+      );
+    } finally {
+      setIsProcessingImage(false);
+    }
+  }
+
+  function removeImage() {
+    setImageFile(null);
+    setPreviewUrl(null);
+    setImageError("");
+    update("imagePath", null);
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSaving(true);
     setError("");
     try {
-      await onSave({
-        ...formData,
-        name: formData.name.trim(),
-        nameJa: formData.nameJa.trim(),
-        description: formData.description.trim(),
-        unit: formData.unit.trim(),
-        price: Math.max(0, Number(formData.price)),
-        stock: Math.max(0, Math.floor(Number(formData.stock))),
-      });
+      await onSave(
+        {
+          ...formData,
+          name: formData.name.trim(),
+          nameJa: formData.nameJa.trim(),
+          description: formData.description.trim(),
+          unit: formData.unit.trim(),
+          price: Math.max(0, Number(formData.price)),
+          stock: Math.max(0, Math.floor(Number(formData.stock))),
+        },
+        imageFile,
+      );
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : "商品保存失败");
     } finally {
@@ -392,6 +473,9 @@ function ProductForm({
     setFormData((current) => ({ ...current, [field]: value }));
   }
 
+  const displayImageUrl =
+    previewUrl ?? getProductImageUrl(formData.imagePath);
+
   return (
     <form
       onSubmit={submit}
@@ -401,6 +485,59 @@ function ProductForm({
         {product ? "编辑商品" : "新增商品"}
       </h2>
       <div className="grid gap-5 sm:grid-cols-2">
+        <div className="space-y-3 sm:col-span-2">
+          <span className="text-sm font-medium text-stone-700">商品图片</span>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="relative h-40 w-full overflow-hidden rounded-2xl bg-stone-100 sm:w-56">
+              {displayImageUrl ? (
+                <Image
+                  src={displayImageUrl}
+                  alt="商品图片预览"
+                  fill
+                  unoptimized={Boolean(previewUrl)}
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-sm text-stone-400">
+                  暂无图片
+                </div>
+              )}
+            </div>
+            <div className="space-y-2">
+              <label className="inline-flex cursor-pointer rounded-full border border-stone-200 px-4 py-2 text-sm font-medium text-stone-700 hover:border-stone-400">
+                {isProcessingImage ? "正在压缩..." : "选择图片"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) => void selectImage(event)}
+                  disabled={isProcessingImage || isSaving}
+                  className="sr-only"
+                />
+              </label>
+              {previewUrl || formData.imagePath ? (
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  disabled={isSaving}
+                  className="ml-2 text-sm text-red-600 hover:text-red-700"
+                >
+                  删除图片
+                </button>
+              ) : null}
+              <p className="text-xs leading-relaxed text-stone-400">
+                JPG、PNG 或 WebP；自动缩放至最长边 1400px，并压缩为不超过 300KB 的 WebP。
+              </p>
+              {imageFile ? (
+                <p className="text-xs text-emerald-600">
+                  处理完成：{Math.ceil(imageFile.size / 1024)}KB
+                </p>
+              ) : null}
+              {imageError ? (
+                <p className="text-sm text-red-600">{imageError}</p>
+              ) : null}
+            </div>
+          </div>
+        </div>
         <AdminInput
           label="中文名称"
           value={formData.name}
@@ -486,14 +623,14 @@ function ProductForm({
         <button
           type="button"
           onClick={onCancel}
-          disabled={isSaving}
+          disabled={isSaving || isProcessingImage}
           className="rounded-full border border-stone-200 px-5 py-2.5 text-sm font-medium text-stone-700"
         >
           取消
         </button>
         <button
           type="submit"
-          disabled={isSaving}
+          disabled={isSaving || isProcessingImage}
           className="rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white"
         >
           {isSaving ? "保存中..." : "保存"}
@@ -537,6 +674,7 @@ function omitProductId(product: Product): Omit<Product, "id"> {
     unit: product.unit,
     popular: product.popular,
     active: product.active,
+    imagePath: product.imagePath,
   };
 }
 

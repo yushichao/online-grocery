@@ -13,6 +13,7 @@ export function parseProductInput(value: unknown): Omit<Product, "id"> | null {
   if (!value || typeof value !== "object") return null;
   const input = value as Record<string, unknown>;
   const categorySlug = input.categorySlug as CategorySlug;
+  const imagePath = input.imagePath;
   if (
     typeof input.name !== "string" ||
     !input.name.trim() ||
@@ -27,7 +28,12 @@ export function parseProductInput(value: unknown): Omit<Product, "id"> | null {
     !categorySlugs.has(categorySlug) ||
     typeof input.unit !== "string" ||
     !input.unit.trim() ||
-    typeof input.active !== "boolean"
+    typeof input.active !== "boolean" ||
+    !(
+      imagePath === null ||
+      (typeof imagePath === "string" &&
+        /^products\/[0-9a-f-]{36}\.webp$/.test(imagePath))
+    )
   ) {
     return null;
   }
@@ -41,6 +47,7 @@ export function parseProductInput(value: unknown): Omit<Product, "id"> | null {
     unit: input.unit.trim(),
     popular: Boolean(input.popular),
     active: input.active,
+    imagePath,
   };
 }
 

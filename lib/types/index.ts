@@ -23,6 +23,7 @@ export interface Product {
   price: number;
   stock: number;
   active: boolean;
+  imagePath: string | null;
   categorySlug: CategorySlug;
   unit: string;
   popular?: boolean;
