@@ -1,5 +1,5 @@
 import "server-only";
-import { sql } from "@/lib/db/client";
+import { getSql } from "@/lib/db/client";
 import type {
   CheckoutFormData,
   Order,
@@ -74,6 +74,7 @@ function mapOrder(row: OrderRow, items: OrderItemRow[]): Order {
 }
 
 export async function createOrder(input: CreateOrderInput): Promise<Order> {
+  const sql = getSql();
   return sql.begin(async (transaction) => {
     const requestedItems = new Map<string, number>();
     for (const item of input.items) {
@@ -159,6 +160,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
 }
 
 export async function listOrders(): Promise<Order[]> {
+  const sql = getSql();
   const orders = await sql<OrderRow[]>`
     select id, customer_name, phone, address, delivery_time, notes,
       total, status, created_at
@@ -188,6 +190,7 @@ export async function updateOrderStatus(
   id: string,
   status: OrderStatus,
 ): Promise<boolean> {
+  const sql = getSql();
   const result = await sql`
     update public.orders set status = ${status} where id = ${id}
   `;

@@ -1,5 +1,5 @@
 import "server-only";
-import { sql } from "@/lib/db/client";
+import { getSql } from "@/lib/db/client";
 import type { CategorySlug, Product } from "@/lib/types";
 
 interface ProductRow {
@@ -31,6 +31,7 @@ function mapProduct(row: ProductRow): Product {
 }
 
 export async function listPublicProducts(): Promise<Product[]> {
+  const sql = getSql();
   const rows = await sql<ProductRow[]>`
     select id, name, name_ja, description, price, stock, category_slug,
       unit, popular, active
@@ -42,6 +43,7 @@ export async function listPublicProducts(): Promise<Product[]> {
 }
 
 export async function listAllProducts(): Promise<Product[]> {
+  const sql = getSql();
   const rows = await sql<ProductRow[]>`
     select id, name, name_ja, description, price, stock, category_slug,
       unit, popular, active
@@ -54,6 +56,7 @@ export async function listAllProducts(): Promise<Product[]> {
 export async function createProduct(
   product: Omit<Product, "id">,
 ): Promise<Product> {
+  const sql = getSql();
   const id = `prod-${crypto.randomUUID()}`;
   const [row] = await sql<ProductRow[]>`
     insert into public.products (
@@ -74,6 +77,7 @@ export async function updateProduct(
   id: string,
   product: Omit<Product, "id">,
 ): Promise<Product | null> {
+  const sql = getSql();
   const [row] = await sql<ProductRow[]>`
     update public.products set
       name = ${product.name},

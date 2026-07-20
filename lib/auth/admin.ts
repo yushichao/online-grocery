@@ -1,9 +1,10 @@
 import "server-only";
 import { redirect } from "next/navigation";
-import { sql } from "@/lib/db/client";
+import { getSql } from "@/lib/db/client";
 import { createClient } from "@/lib/supabase/server";
 
 export async function isAdminUser(userId: string): Promise<boolean> {
+  const sql = getSql();
   const [profile] = await sql`
     select id from public.admin_profiles
     where id = ${userId} and role = 'admin'
