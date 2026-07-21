@@ -32,10 +32,9 @@ export function Footer() {
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-stone-900">配送信息</h3>
             <ul className="space-y-2 text-sm text-stone-500">
-              <li>配送范围：东京23区</li>
-              <li>配送时间：10:00 – 20:00</li>
               <li>顾客下单后由后台统一处理</li>
-              <li>客服电话：03-XXXX-XXXX</li>
+              <li>微信客服：showlife8888</li>
+              <li>客服电话：070-8392-6122</li>
             </ul>
           </div>
         </div>
