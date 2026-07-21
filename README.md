@@ -1,24 +1,24 @@
-# online-grocery
+# Online Grocery
 
-基于 Next.js 16、Supabase 与 PostgreSQL 的在线食品商店。顾客可以浏览商品、加入购物车并下单；管理员登录后台后可以查看订单、修改订单状态，以及新增和编辑商品、价格与库存。
+An online grocery store built with Next.js 16, Supabase, and PostgreSQL. Customers can browse products, add items to cart, and place orders. Admins can log in to the backend to view orders, update order status, and manage products, prices, and inventory.
 
-## 当前功能
+## Features
 
-- 商品目录、分类、详情与本地购物车
-- 服务端创建订单、重新核价并原子扣减库存
-- Supabase PostgreSQL 持久化商品、订单和订单明细
-- Supabase Auth 管理员登录
-- 后台查看订单并修改状态
-- 后台新增、编辑、上下架商品以及修改价格和库存
-- 后台上传商品图片，自动转换为最长边 1400px、最大 300KB 的 WebP
-- 更换或移除商品图片时自动清理 Supabase Storage 中的旧文件
-- 数据库 Row Level Security 策略
+- Product catalog, categories, details, and local shopping cart
+- Server-side order creation, price verification, and atomic inventory deduction
+- Supabase PostgreSQL for products, orders, and order items persistence
+- Supabase Auth for admin login
+- Admin backend to view orders and update status
+- Admin backend to create, edit, publish/unpublish products, and manage prices and inventory
+- Product image upload with automatic conversion to 1400px max width, 300KB max size, WebP format
+- Automatic cleanup of old images in Supabase Storage when updating or removing product images
+- Database Row Level Security (RLS) policies
 
-优惠、优惠券和配送费计算暂未启用；订单总额目前只包含商品金额。
+Discounts, coupons, and shipping fee calculations are not yet enabled. Order total currently includes only product amounts.
 
-## 环境变量
+## Environment Variables
 
-在 `.env.local` 中配置：
+Configure in `.env.local`:
 
 ```dotenv
 DATABASE_URL=postgresql://...
@@ -27,11 +27,11 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 ```
 
-- `DATABASE_URL`：应用运行时连接，推荐使用 Transaction pooler，并关闭 prepared statements。
-- `MIGRATION_DATABASE_URL`：迁移脚本连接，推荐 Session pooler 或 Direct connection。
-- `.env.local` 已被 Git 忽略，不要提交数据库密码。
+- `DATABASE_URL`: Connection for the running app, recommended to use Transaction pooler with prepared statements disabled.
+- `MIGRATION_DATABASE_URL`: Connection for migration scripts, recommended Session pooler or Direct connection.
+- `.env.local` is gitignored; never commit database passwords.
 
-## 初始化
+## Quick Start
 
 ```bash
 npm install
@@ -39,19 +39,19 @@ npm run db:migrate
 npm run dev
 ```
 
-打开 `http://localhost:3000`。
+Open `http://localhost:3000`.
 
-## 创建后台管理员
+## Create Admin User
 
-先在 Supabase Dashboard 的 `Authentication > Users` 创建邮箱密码用户，然后执行：
+First, create an email/password user in Supabase Dashboard at `Authentication > Users`, then run:
 
 ```bash
 npm run db:make-admin -- admin@example.com
 ```
 
-随后访问 `http://localhost:3000/admin/login` 登录。
+Then visit `http://localhost:3000/admin/login` to log in.
 
-## 常用命令
+## Common Commands
 
 ```bash
 npm run lint
@@ -59,10 +59,14 @@ npx tsc --noEmit
 npm run build
 ```
 
-## 数据说明
+## Data Storage
 
-- 商品和订单保存在 Supabase PostgreSQL。
-- 商品图片保存在公开的 Supabase Storage `product-images` Bucket，上传和删除仅限管理员。
-- 购物车保存在顾客浏览器的 `localStorage`。
-- 下单接口只接受商品 ID 和数量；价格、上下架状态与库存都在服务端校验。
-- 当前未接入在线支付。
+- Products and orders are stored in Supabase PostgreSQL.
+- Product images are stored in the public Supabase Storage `product-images` bucket; only admins can upload and delete.
+- Shopping cart is stored in browser `localStorage`.
+- Order API accepts only product IDs and quantities; prices, publish status, and inventory are verified server-side.
+- Online payment integration not yet implemented.
+
+---
+
+[中文文档](docs/README.zh.md)
