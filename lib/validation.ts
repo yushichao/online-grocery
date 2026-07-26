@@ -7,6 +7,9 @@ const categorySlugs = new Set<CategorySlug>([
   "drinks",
   "instant-noodles",
   "seasonings",
+  "seafood",
+  "fruits",
+  "prepared-food",
 ]);
 
 export function parseProductInput(value: unknown): Omit<Product, "id"> | null {

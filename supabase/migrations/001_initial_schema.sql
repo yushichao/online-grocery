@@ -14,7 +14,10 @@ create table if not exists public.products (
       'snacks',
       'drinks',
       'instant-noodles',
-      'seasonings'
+      'seasonings',
+      'seafood',
+      'fruits',
+      'prepared-food'
     )
   ),
   unit text not null,

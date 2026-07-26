@@ -49,6 +49,30 @@ export const categories: Category[] = [
     description: "酱油、辣椒酱、香料",
     emoji: "🧂",
   },
+  {
+    id: "cat-seafood",
+    slug: "seafood",
+    name: "海鲜",
+    nameJa: "海鮮",
+    description: "鲜鱼、虾蟹、贝类",
+    emoji: "🦐",
+  },
+  {
+    id: "cat-fruits",
+    slug: "fruits",
+    name: "水果",
+    nameJa: "果物",
+    description: "新鲜时令水果",
+    emoji: "🍎",
+  },
+  {
+    id: "cat-prepared-food",
+    slug: "prepared-food",
+    name: "熟食",
+    nameJa: "惣菜",
+    description: "即食卤味、烧腊、凉菜",
+    emoji: "🍱",
+  },
 ];
 
 export function getCategoryBySlug(slug: string): Category | undefined {
