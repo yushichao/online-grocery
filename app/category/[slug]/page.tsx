@@ -1,22 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CategoryProducts } from "@/components/product/CategoryProducts";
-import { getCategoryBySlug } from "@/lib/data/categories";
-import type { CategorySlug } from "@/lib/types";
+import { categories, getCategoryBySlug } from "@/lib/data/categories";
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  return [
-    { slug: "vegetables" },
-    { slug: "frozen-food" },
-    { slug: "snacks" },
-    { slug: "drinks" },
-    { slug: "instant-noodles" },
-    { slug: "seasonings" },
-  ];
+  return categories.map((category) => ({ slug: category.slug }));
 }
 
 export async function generateMetadata({ params }: CategoryPageProps) {
@@ -68,7 +60,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </p>
       </header>
 
-      <CategoryProducts slug={category.slug as CategorySlug} />
+      <CategoryProducts slug={category.slug} />
     </div>
   );
 }

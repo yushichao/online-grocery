@@ -4,7 +4,10 @@ export type CategorySlug =
   | "snacks"
   | "drinks"
   | "instant-noodles"
-  | "seasonings";
+  | "seasonings"
+  | "seafood"
+  | "fruits"
+  | "prepared-food";
 
 export interface Category {
   id: string;
