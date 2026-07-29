@@ -5,6 +5,8 @@ import {
   uploadProductImage,
 } from "@/lib/storage/product-images";
 
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   if (!(await getAdminUserId())) {
     return Response.json({ error: "未授权" }, { status: 401 });

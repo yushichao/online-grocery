@@ -12,7 +12,6 @@ interface OrderRow {
   customer_name: string;
   phone: string;
   address: string;
-  delivery_time: string;
   notes: string;
   total: number;
   status: OrderStatus;
@@ -65,7 +64,6 @@ function mapOrder(row: OrderRow, items: OrderItemRow[]): Order {
       customerName: row.customer_name,
       phone: row.phone,
       address: row.address,
-      deliveryTime: row.delivery_time,
       notes: row.notes,
     },
     createdAt: row.created_at.toISOString(),
@@ -118,14 +116,13 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
       .toUpperCase()}`;
     const [orderRow] = await transaction<OrderRow[]>`
       insert into public.orders (
-        id, customer_name, phone, address, delivery_time, notes, total, status
+        id, customer_name, phone, address, notes, total, status
       ) values (
         ${orderId}, ${input.formData.customerName}, ${input.formData.phone},
-        ${input.formData.address}, ${input.formData.deliveryTime},
-        ${input.formData.notes}, ${total}, 'pending'
+        ${input.formData.address}, ${input.formData.notes}, ${total}, 'pending'
       )
-      returning id, customer_name, phone, address, delivery_time, notes,
-        total, status, created_at
+      returning id, customer_name, phone, address, notes, total, status,
+        created_at
     `;
 
     for (const line of lines) {
@@ -162,8 +159,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
 export async function listOrders(): Promise<Order[]> {
   const sql = getSql();
   const orders = await sql<OrderRow[]>`
-    select id, customer_name, phone, address, delivery_time, notes,
-      total, status, created_at
+    select id, customer_name, phone, address, notes, total, status, created_at
     from public.orders
     order by created_at desc
   `;

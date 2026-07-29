@@ -7,23 +7,12 @@ import type { CheckoutFormData, Order } from "@/lib/types";
 import { formatPrice } from "@/lib/utils/format";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-
-const deliveryTimeOptions = [
-  { value: "", label: "请选择配送时间" },
-  { value: "10:00-12:00", label: "10:00 – 12:00" },
-  { value: "12:00-14:00", label: "12:00 – 14:00" },
-  { value: "14:00-16:00", label: "14:00 – 16:00" },
-  { value: "16:00-18:00", label: "16:00 – 18:00" },
-  { value: "18:00-20:00", label: "18:00 – 20:00" },
-];
 
 const initialFormData: CheckoutFormData = {
   customerName: "",
   phone: "",
   address: "",
-  deliveryTime: "",
   notes: "",
 };
 
@@ -51,10 +40,6 @@ export function CheckoutForm() {
     } else if (formData.address.trim().length < 6) {
       nextErrors.address = "请填写完整地址";
     }
-    if (!formData.deliveryTime) {
-      nextErrors.deliveryTime = "请选择配送时间";
-    }
-
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   }
@@ -132,15 +117,6 @@ export function CheckoutForm() {
           error={errors.address}
           required
         />
-        <Select
-          label="配送时间"
-          name="deliveryTime"
-          value={formData.deliveryTime}
-          onChange={(event) => updateField("deliveryTime", event.target.value)}
-          options={deliveryTimeOptions}
-          error={errors.deliveryTime}
-          required
-        />
         <Textarea
           label="订单备注"
           name="notes"
@@ -174,7 +150,7 @@ export function CheckoutForm() {
           <p className="text-center text-sm text-red-600">{submitError}</p>
         ) : null}
         <p className="text-center text-xs text-stone-400">
-          提交后可在管理后台查看和处理订单。
+          提交后可在提交成功页面查看付款码。
         </p>
       </div>
     </form>

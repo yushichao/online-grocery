@@ -18,7 +18,7 @@ const notoSansSC = Noto_Sans_SC({
 export const metadata: Metadata = {
   title: "SHOW LIFE | 中华食材宅配",
   description:
-    "专为在日华人家庭提供新鲜蔬菜、零食、调味料等中华食材的宅配服务。东京圈内当日送达。",
+    "专为在日华人家庭提供新鲜蔬果、零食、调味料等中华食材的宅配服务。",
 };
 
 export default function RootLayout({

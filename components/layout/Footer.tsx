@@ -11,12 +11,12 @@ export function Footer() {
               SHOW LIFE
             </h2>
             <p className="max-w-xs text-sm leading-relaxed text-stone-500">
-              专为在日华人家庭提供新鲜食材与家乡味道的宅配服务。东京圈内当日送达。
+              专注服务在日华人家庭的一站式食品购物平台。精选全球优质食材，涵盖新鲜蔬果、肉类海鲜、零食饮品、粮油调味及冷冻食品，让每一餐都充满家的味道。
             </p>
           </div>
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-stone-900">商品分类</h3>
-            <ul className="space-y-2">
+            <ul className="grid grid-cols-2 gap-x-6 gap-y-2">
               {categories.map((category) => (
                 <li key={category.id}>
                   <Link
