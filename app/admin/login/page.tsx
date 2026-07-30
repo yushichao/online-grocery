@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAdminUserId } from "@/lib/auth/admin";
-import { login } from "@/app/admin/login/actions";
+import { LoginForm } from "@/app/admin/login/LoginForm";
 
 interface LoginPageProps {
   searchParams: Promise<{ error?: string }>;
@@ -23,39 +23,7 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
         <p className="mt-2 text-sm text-stone-500">
           使用已授权的 Supabase 管理员账号登录。
         </p>
-        <form action={login} className="mt-7 space-y-5">
-          <label className="block space-y-2 text-sm font-medium text-stone-700">
-            <span>邮箱</span>
-            <input
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              className="w-full rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-400"
-            />
-          </label>
-          <label className="block space-y-2 text-sm font-medium text-stone-700">
-            <span>密码</span>
-            <input
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              className="w-full rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-400"
-            />
-          </label>
-          {errorMessage ? (
-            <p className="text-sm text-red-600" role="alert">
-              {errorMessage}
-            </p>
-          ) : null}
-          <button
-            type="submit"
-            className="h-12 w-full rounded-full bg-stone-900 text-sm font-medium text-white hover:bg-stone-800"
-          >
-            登录
-          </button>
-        </form>
+        <LoginForm initialError={errorMessage} />
       </div>
     </div>
   );

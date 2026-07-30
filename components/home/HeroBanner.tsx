@@ -7,7 +7,7 @@ export function HeroBanner() {
       <div className="absolute inset-0 bg-stone-950/50" aria-hidden="true" />
       <div className="relative z-10 max-w-lg space-y-4">
         <p className="text-sm font-medium tracking-wide text-stone-300">
-          东京华人超市 · 宅配到家
+          川崎华人超市 · 宅配到家
         </p>
         <h1 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
           家乡味道，

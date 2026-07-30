@@ -1,16 +1,29 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import { logout } from "@/app/admin/login/actions";
 import { useProducts } from "@/context/ProductContext";
 import { categories } from "@/lib/data/categories";
-import type { CategorySlug, Order, OrderStatus, Product } from "@/lib/types";
+import type {
+  CategorySlug,
+  Order,
+  OrderStatus,
+  Product,
+} from "@/lib/types";
 import { compressProductImage } from "@/lib/utils/compress-product-image";
 import { formatPrice } from "@/lib/utils/format";
 import { getProductImageUrl } from "@/lib/utils/product-image-url";
 
 type AdminTab = "orders" | "products";
+type OrderFilter = "all" | OrderStatus;
+type ProductFilter = "all" | CategorySlug;
 
 const orderStatuses: { value: OrderStatus; label: string }[] = [
   { value: "pending", label: "待确认" },
@@ -18,6 +31,18 @@ const orderStatuses: { value: OrderStatus; label: string }[] = [
   { value: "preparing", label: "处理中" },
   { value: "completed", label: "已完成" },
   { value: "cancelled", label: "已取消" },
+];
+
+const productFilterCategories: { value: CategorySlug; label: string }[] = [
+  { value: "vegetables", label: "蔬菜" },
+  { value: "snacks", label: "零食" },
+  { value: "fruits", label: "水果" },
+  { value: "frozen-food", label: "冷冻食品" },
+  { value: "drinks", label: "饮料" },
+  { value: "instant-noodles", label: "方便面" },
+  { value: "seasonings", label: "调味料" },
+  { value: "seafood", label: "海鲜" },
+  { value: "prepared-food", label: "熟食" },
 ];
 
 const emptyProduct: Omit<Product, "id"> = {
@@ -45,8 +70,8 @@ export function AdminDashboard({
   const [products, setProducts] = useState(initialProducts);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-      <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mx-auto max-w-6xl px-4 py-8 print:max-w-none print:px-0 print:py-0 sm:px-6 sm:py-12">
+      <header className="mb-8 flex flex-col gap-4 print:hidden sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="mb-2 flex items-center gap-2">
             <h1 className="text-2xl font-semibold text-stone-900 sm:text-3xl">
@@ -119,6 +144,24 @@ function OrderManager({
   setOrders: React.Dispatch<React.SetStateAction<Order[]>>;
 }) {
   const [error, setError] = useState("");
+  const [filter, setFilter] = useState<OrderFilter>("all");
+  const statusCounts = useMemo(
+    () =>
+      Object.fromEntries(
+        orderStatuses.map(({ value }) => [
+          value,
+          orders.filter((order) => order.status === value).length,
+        ]),
+      ) as Record<OrderStatus, number>,
+    [orders],
+  );
+  const filteredOrders = useMemo(
+    () =>
+      filter === "all"
+        ? orders
+        : orders.filter((order) => order.status === filter),
+    [filter, orders],
+  );
 
   async function changeStatus(orderId: string, status: OrderStatus) {
     const previous = orders;
@@ -141,28 +184,46 @@ function OrderManager({
     }
   }
 
-  if (orders.length === 0) {
-    return <EmptyState message="还没有顾客订单" />;
-  }
-
   return (
-    <div className="space-y-4">
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      {orders.map((order) => (
+    <div className="space-y-4 print:space-y-3">
+      <div className="print:hidden">
+        <FilterChips
+          ariaLabel="按订单状态筛选"
+          options={[
+            { value: "all", label: "全部", count: orders.length },
+            ...orderStatuses.map(({ value, label }) => ({
+              value,
+              label,
+              count: statusCounts[value],
+            })),
+          ]}
+          selected={filter}
+          onSelect={(value) => setFilter(value as OrderFilter)}
+        />
+      </div>
+      {error ? (
+        <p className="text-sm text-red-600 print:hidden">{error}</p>
+      ) : null}
+      {filteredOrders.length === 0 ? (
+        <EmptyState
+          message={orders.length === 0 ? "还没有顾客订单" : "该状态下暂无订单"}
+        />
+      ) : null}
+      {filteredOrders.map((order) => (
         <article
           key={order.id}
-          className="rounded-3xl bg-white p-5 shadow-[0_2px_24px_rgba(0,0,0,0.06)] sm:p-6"
+          className="rounded-3xl bg-white p-5 shadow-[0_2px_24px_rgba(0,0,0,0.06)] print:break-inside-avoid print:rounded-none print:border print:border-stone-500 print:p-4 print:text-black print:shadow-none sm:p-6"
         >
-          <div className="flex flex-col gap-4 border-b border-stone-100 pb-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-4 border-b border-stone-100 pb-4 print:flex-row print:items-start print:justify-between print:border-stone-500 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="font-mono text-sm font-semibold text-stone-900">
+              <p className="font-mono text-sm font-semibold text-stone-900 print:text-black">
                 {order.id}
               </p>
-              <p className="mt-1 text-xs text-stone-400">
+              <p className="mt-1 text-xs text-stone-400 print:text-stone-700">
                 {new Date(order.createdAt).toLocaleString("zh-CN")}
               </p>
             </div>
-            <label className="flex items-center gap-2 text-sm text-stone-500">
+            <label className="flex items-center gap-2 text-sm text-stone-500 print:hidden">
               订单状态
               <select
                 value={order.status ?? "pending"}
@@ -181,14 +242,19 @@ function OrderManager({
                 ))}
               </select>
             </label>
+            <p className="hidden text-sm font-semibold text-black print:block">
+              订单状态：
+              {orderStatuses.find(
+                (status) => status.value === (order.status ?? "pending"),
+              )?.label ?? "待确认"}
+            </p>
           </div>
 
-          <div className="grid gap-6 pt-4 md:grid-cols-2">
+          <div className="grid gap-6 pt-4 print:grid-cols-2 md:grid-cols-2">
             <dl className="space-y-2 text-sm">
               <InfoRow label="顾客" value={order.formData.customerName} />
               <InfoRow label="电话" value={order.formData.phone} />
               <InfoRow label="地址" value={order.formData.address} />
-              <InfoRow label="时间" value={order.formData.deliveryTime} />
               {order.formData.notes ? (
                 <InfoRow label="备注" value={order.formData.notes} />
               ) : null}
@@ -197,7 +263,7 @@ function OrderManager({
               {order.items.map((item) => (
                 <div
                   key={`${order.id}-${item.productId}`}
-                  className="flex justify-between gap-4 text-stone-600"
+                  className="flex justify-between gap-4 text-stone-600 print:text-black"
                 >
                   <span>
                     {item.productName} × {item.quantity}
@@ -205,7 +271,7 @@ function OrderManager({
                   <span>{formatPrice(item.subtotal)}</span>
                 </div>
               ))}
-              <div className="flex justify-between border-t border-stone-100 pt-2 font-semibold text-stone-900">
+              <div className="flex justify-between border-t border-stone-100 pt-2 font-semibold text-stone-900 print:border-stone-500 print:text-black">
                 <span>合计</span>
                 <span>{formatPrice(order.total)}</span>
               </div>
@@ -220,8 +286,10 @@ function OrderManager({
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="grid grid-cols-[4rem_1fr] gap-2">
-      <dt className="text-stone-400">{label}</dt>
-      <dd className="break-words text-stone-700">{value}</dd>
+      <dt className="text-stone-400 print:font-medium print:text-stone-800">
+        {label}
+      </dt>
+      <dd className="break-words text-stone-700 print:text-black">{value}</dd>
     </div>
   );
 }
@@ -236,6 +304,24 @@ function ProductManager({
   const { refreshProducts } = useProducts();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [filter, setFilter] = useState<ProductFilter>("all");
+  const categoryCounts = useMemo(
+    () =>
+      Object.fromEntries(
+        productFilterCategories.map(({ value }) => [
+          value,
+          products.filter((product) => product.categorySlug === value).length,
+        ]),
+      ) as Record<CategorySlug, number>,
+    [products],
+  );
+  const filteredProducts = useMemo(
+    () =>
+      filter === "all"
+        ? products
+        : products.filter((product) => product.categorySlug === filter),
+    [filter, products],
+  );
 
   function startCreate() {
     setEditingProduct(null);
@@ -250,11 +336,24 @@ function ProductManager({
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <FilterChips
+          ariaLabel="按商品分类筛选"
+          options={[
+            { value: "all", label: "全部", count: products.length },
+            ...productFilterCategories.map(({ value, label }) => ({
+              value,
+              label,
+              count: categoryCounts[value],
+            })),
+          ]}
+          selected={filter}
+          onSelect={(value) => setFilter(value as ProductFilter)}
+        />
         <button
           type="button"
           onClick={startCreate}
-          className="rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-stone-800"
+          className="shrink-0 self-end rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-stone-800 sm:self-start"
         >
           + 新增商品
         </button>
@@ -341,7 +440,7 @@ function ProductManager({
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <tr key={product.id}>
                   <td className="px-5 py-4">
                     <p className="font-medium text-stone-900">{product.name}</p>
@@ -378,9 +477,60 @@ function ProductManager({
                   </td>
                 </tr>
               ))}
+              {filteredProducts.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-5 py-14 text-center text-sm text-stone-400"
+                  >
+                    {products.length === 0
+                      ? "还没有商品"
+                      : "该分类下暂无商品"}
+                  </td>
+                </tr>
+              ) : null}
             </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+function FilterChips({
+  ariaLabel,
+  options,
+  selected,
+  onSelect,
+}: {
+  ariaLabel: string;
+  options: { value: string; label: string; count: number }[];
+  selected: string;
+  onSelect: (value: string) => void;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label={ariaLabel}
+      className="-mx-1 flex min-w-0 gap-2 overflow-x-auto px-1 pb-1"
+    >
+      {options.map((option) => {
+        const active = selected === option.value;
+        return (
+          <button
+            key={option.value}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onSelect(option.value)}
+            className={`shrink-0 rounded-full border px-3.5 py-2 text-sm font-medium tabular-nums transition-all ${
+              active
+                ? "border-stone-900 bg-stone-900 text-white shadow-sm"
+                : "border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900"
+            }`}
+          >
+            {option.label} ({option.count})
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -508,7 +658,7 @@ function ProductForm({
                 {isProcessingImage ? "正在压缩..." : "选择图片"}
                 <input
                   type="file"
-                  accept="image/jpeg,image/png,image/webp"
+                  accept="image/*"
                   onChange={(event) => void selectImage(event)}
                   disabled={isProcessingImage || isSaving}
                   className="sr-only"
@@ -525,7 +675,9 @@ function ProductForm({
                 </button>
               ) : null}
               <p className="text-xs leading-relaxed text-stone-400">
-                JPG、PNG 或 WebP；自动缩放至最长边 1400px，并压缩为不超过 300KB 的 WebP。
+                支持 iPhone HEIC、JPG、PNG 和 WebP；HEIC
+                首次处理可能需要数秒，服务端统一保存为最长边 1400px、不超过
+                300KB 的 WebP。
               </p>
               {imageFile ? (
                 <p className="text-xs text-emerald-600">

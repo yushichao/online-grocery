@@ -64,8 +64,6 @@ export function parseCheckoutFormData(value: unknown): CheckoutFormData | null {
     !/^[0-9+()\-\s]{8,20}$/.test(input.phone.trim()) ||
     typeof input.address !== "string" ||
     input.address.trim().length < 6 ||
-    typeof input.deliveryTime !== "string" ||
-    !input.deliveryTime ||
     typeof input.notes !== "string" ||
     input.notes.length > 300
   ) {
@@ -75,7 +73,6 @@ export function parseCheckoutFormData(value: unknown): CheckoutFormData | null {
     customerName: input.customerName.trim(),
     phone: input.phone.trim(),
     address: input.address.trim(),
-    deliveryTime: input.deliveryTime,
     notes: input.notes.trim(),
   };
 }

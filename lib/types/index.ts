@@ -41,7 +41,6 @@ export interface CheckoutFormData {
   customerName: string;
   phone: string;
   address: string;
-  deliveryTime: string;
   notes: string;
 }
 
