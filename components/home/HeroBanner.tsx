@@ -2,7 +2,7 @@ export function HeroBanner() {
   return (
     <section
       className="relative overflow-hidden rounded-3xl bg-cover bg-center px-6 py-14 text-white shadow-[0_4px_32px_rgba(0,0,0,0.12)] sm:px-10 sm:py-20"
-      style={{ backgroundImage: "url('/hero-banner.png')" }}
+      style={{ backgroundImage: "url('/hero-banner.webp')" }}
     >
       <div className="absolute inset-0 bg-stone-950/50" aria-hidden="true" />
       <div className="relative z-10 max-w-lg space-y-4">
