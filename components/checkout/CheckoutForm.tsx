@@ -37,7 +37,7 @@ export function CheckoutForm() {
     }
     if (!formData.address.trim()) {
       nextErrors.address = "请输入配送地址";
-    } else if (formData.address.trim().length < 2) {
+    } else if (formData.address.trim().length < 6) {
       nextErrors.address = "请填写完整地址";
     }
     setErrors(nextErrors);

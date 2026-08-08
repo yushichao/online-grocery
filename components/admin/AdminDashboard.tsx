@@ -8,6 +8,7 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from "react";
+import { useFormStatus } from "react-dom";
 import { logout } from "@/app/admin/login/actions";
 import { useProducts } from "@/context/ProductContext";
 import { categories } from "@/lib/data/categories";
@@ -68,8 +69,6 @@ export function AdminDashboard({
   const [tab, setTab] = useState<AdminTab>("orders");
   const [orders, setOrders] = useState(initialOrders);
   const [products, setProducts] = useState(initialProducts);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 print:max-w-none print:px-0 print:py-0 sm:px-6 sm:py-12">
       <header className="mb-8 flex flex-col gap-4 print:hidden sm:flex-row sm:items-end sm:justify-between">
@@ -88,7 +87,7 @@ export function AdminDashboard({
         </div>
         <div className="flex items-center gap-3">
           <div className="flex rounded-full bg-stone-100 p-1">
-            <TabButton active={tab === "orders"} onClick={() => setTab("orders")}> 
+            <TabButton active={tab === "orders"} onClick={() => setTab("orders")}>
               订单（{orders.length}）
             </TabButton>
             <TabButton
@@ -98,14 +97,8 @@ export function AdminDashboard({
               商品（{products.length}）
             </TabButton>
           </div>
-          <form action={logout} onSubmit={() => setIsLoggingOut(true)}>
-            <button
-              type="submit"
-              disabled={isLoggingOut}
-              className="rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-500 transition-colors hover:bg-stone-200 hover:text-stone-900 disabled:cursor-not-allowed disabled:text-stone-300"
-            >
-              {isLoggingOut ? "退出中..." : "退出"}
-            </button>
+          <form action={logout}>
+            <LogoutButton />
           </form>
         </div>
       </header>
@@ -116,6 +109,21 @@ export function AdminDashboard({
         <ProductManager products={products} setProducts={setProducts} />
       )}
     </div>
+  );
+}
+
+function LogoutButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      aria-busy={pending}
+      className="rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-500 transition-colors hover:bg-stone-200 hover:text-stone-900 disabled:cursor-wait disabled:text-stone-300"
+    >
+      {pending ? "退出中..." : "退出"}
+    </button>
   );
 }
 
