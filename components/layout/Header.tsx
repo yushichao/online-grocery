@@ -7,20 +7,11 @@ import { CartLink } from "@/components/layout/CartLink";
 
 export function Header() {
   const router = useRouter();
-  const pathname = usePathname();
-  const [isNavigatingAdmin, setIsNavigatingAdmin] = useState(false);
   const [isPending, startTransition] = useTransition();
-
-  useEffect(() => {
-    if (isNavigatingAdmin) {
-      setIsNavigatingAdmin(false);
-    }
-  }, [pathname, isNavigatingAdmin]);
 
   function handleAdminClick(event: MouseEvent<HTMLAnchorElement>) {
     event.preventDefault();
-    if (isNavigatingAdmin) return;
-    setIsNavigatingAdmin(true);
+    if (isPending) return;
     startTransition(() => {
       router.push("/admin");
     });
@@ -39,14 +30,14 @@ export function Header() {
           <a
             href="/admin"
             onClick={handleAdminClick}
-            aria-busy={isNavigatingAdmin || isPending}
+            aria-busy={isPending}
             className={`rounded-full px-3 py-2 text-sm transition-colors ${
-              isNavigatingAdmin || isPending
+              isPending
                 ? "cursor-not-allowed text-stone-300"
                 : "text-stone-500 hover:bg-stone-100 hover:text-stone-900"
             }`}
           >
-            {isNavigatingAdmin || isPending ? "进入中..." : "管理后台"}
+            {isPending ? "进入中..." : "管理后台"}
           </a>
           <CartLink />
         </div>
