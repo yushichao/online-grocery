@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminLink } from "@/components/layout/AdminLink";
 import { CartLink } from "@/components/layout/CartLink";
 
 export function Header() {
@@ -12,12 +13,7 @@ export function Header() {
           <span className="text-xs text-stone-500">中华食材宅配</span>
         </Link>
         <div className="flex items-center gap-3">
-          <Link
-            href="/admin"
-            className="rounded-full px-3 py-2 text-sm text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900"
-          >
-            管理后台
-          </Link>
+          <AdminLink />
           <CartLink />
         </div>
       </div>

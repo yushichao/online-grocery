@@ -104,7 +104,7 @@ export function CheckoutForm() {
           type="tel"
           value={formData.phone}
           onChange={(event) => updateField("phone", event.target.value)}
-          placeholder="090-XXXX-XXXX"
+          placeholder="090XXXXXXXX"
           error={errors.phone}
           required
         />
