@@ -37,7 +37,7 @@ export function CheckoutForm() {
     }
     if (!formData.address.trim()) {
       nextErrors.address = "请输入配送地址";
-    } else if (formData.address.trim().length < 6) {
+    } else if (formData.address.trim().length < 2) {
       nextErrors.address = "请填写完整地址";
     }
     setErrors(nextErrors);
@@ -104,7 +104,7 @@ export function CheckoutForm() {
           type="tel"
           value={formData.phone}
           onChange={(event) => updateField("phone", event.target.value)}
-          placeholder="090-XXXX-XXXX"
+          placeholder="090XXXXXXXX"
           error={errors.phone}
           required
         />
