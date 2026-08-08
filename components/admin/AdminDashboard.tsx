@@ -68,6 +68,7 @@ export function AdminDashboard({
   const [tab, setTab] = useState<AdminTab>("orders");
   const [orders, setOrders] = useState(initialOrders);
   const [products, setProducts] = useState(initialProducts);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 print:max-w-none print:px-0 print:py-0 sm:px-6 sm:py-12">
@@ -87,7 +88,7 @@ export function AdminDashboard({
         </div>
         <div className="flex items-center gap-3">
           <div className="flex rounded-full bg-stone-100 p-1">
-            <TabButton active={tab === "orders"} onClick={() => setTab("orders")}>
+            <TabButton active={tab === "orders"} onClick={() => setTab("orders")}> 
               订单（{orders.length}）
             </TabButton>
             <TabButton
@@ -97,9 +98,13 @@ export function AdminDashboard({
               商品（{products.length}）
             </TabButton>
           </div>
-          <form action={logout}>
-            <button className="text-sm text-stone-500 hover:text-stone-900">
-              退出
+          <form action={logout} onSubmit={() => setIsLoggingOut(true)}>
+            <button
+              type="submit"
+              disabled={isLoggingOut}
+              className="rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-500 transition-colors hover:bg-stone-200 hover:text-stone-900 disabled:cursor-not-allowed disabled:text-stone-300"
+            >
+              {isLoggingOut ? "退出中..." : "退出"}
             </button>
           </form>
         </div>

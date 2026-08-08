@@ -9,12 +9,14 @@ interface AddToCartButtonProps {
   product: Product;
   size?: "sm" | "md" | "lg";
   fullWidth?: boolean;
+  className?: string;
 }
 
 export function AddToCartButton({
   product,
   size = "md",
   fullWidth = false,
+  className = "",
 }: AddToCartButtonProps) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
@@ -31,7 +33,7 @@ export function AddToCartButton({
       variant={added ? "secondary" : "primary"}
       size={size}
       onClick={handleClick}
-      className={fullWidth ? "w-full" : ""}
+      className={`${fullWidth ? "w-full" : ""} ${className}`.trim()}
       disabled={product.stock <= 0}
       aria-label={`将 ${product.name} 加入购物车`}
     >

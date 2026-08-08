@@ -21,17 +21,14 @@ export function ProductCard({ product }: ProductCardProps) {
           </Link>
           <p className="text-sm text-stone-500">{product.nameJa}</p>
         </div>
-        <div className="mt-auto flex items-center justify-between gap-3">
-          <div>
+        <div className="mt-auto flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
             <p className="text-lg font-semibold text-stone-900">
               {formatPrice(product.price)}
             </p>
             <p className="text-xs text-stone-400">{product.unit}</p>
-            <p className="mt-1 text-xs text-stone-400">
-              {product.stock > 0 ? `库存 ${product.stock}` : "已售罄"}
-            </p>
           </div>
-          <AddToCartButton product={product} size="sm" />
+          <AddToCartButton product={product} size="sm" className="w-full sm:w-auto" />
         </div>
       </div>
     </article>
